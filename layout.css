@@ -1,0 +1,16 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #73c87b;
+    color: #f0ede8;
+    min-height: 100vh;
+    padding: 2rem 0.5rem 4rem;
+  }
+
+.hero-icon { 
+    display: block; 
+    margin: 0 auto 1rem;
+    width: 100%;
+    height: 300px;
+    background: url('./nature.jpg') center/cover no-repeat;
+    border-radius: 8px;
+  }

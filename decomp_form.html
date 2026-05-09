@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌅 Decompression Somewhere — Are You In?</title>
+<link rel="stylesheet" href="layout.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #73c87b;
+    color: #f0ede8;
+    min-height: 100vh;
+    padding: 1.5rem 1rem 4rem;
+  }
+
+  .stars {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 0;
+    background: radial-gradient(ellipse at 20% 50%, #1a0a2e 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, #0a1a2e 0%, transparent 60%),
+                #0d0d1a;
+  }
+
+  .wrap { max-width: 680px; margin: 0 auto; position: relative; z-index: 1; }
+
+  .hero {
+    text-align: center;
+    padding: 3rem 2rem 2.5rem;
+    margin-bottom: 2rem;
+    background: rgba(255,255,255,0.04);
+    border: 0.5px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+  }
+  .hero-icon { font-size: 56px; display: block; margin-bottom: 1rem; }
+  .hero h1 { font-size: clamp(24px, 5vw, 32px); font-weight: 700; letter-spacing: -0.8px; margin-bottom: 1rem; color: #fff; line-height: 1.2;}
+  .hero p { font-size: clamp(14px, 2.5vw, 16px); color: rgba(255,255,255,0.6); line-height: 1.8; max-width: 440px; margin: 0 auto; }
+  .pill {
+    display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+    padding: 4px 14px; border-radius: 20px; margin-bottom: 1rem;
+    background: rgba(127,119,221,0.25); color: #c5c0f5; border: 0.5px solid rgba(127,119,221,0.4);
+  }
+
+  .progress-bar {
+    height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px;
+    margin-bottom: 2rem; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, #7F77DD, #5DCAA5);
+    border-radius: 2px; transition: width 0.4s ease; width: 0%;
+  }
+
+  .q-card {
+    background: rgba(255,255,255,0.04);
+    border: 0.5px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 1.75rem;
+    margin-bottom: 1.5rem;
+    transition: border-color 0.2s;
+  }
+  .q-card:focus-within { border-color: rgba(127,119,221,0.5); }
+
+  .q-num { font-size: 11px; color: rgba(255,255,255,0.35); font-weight: 500; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .q-label { font-size: clamp(15px, 2vw, 18px); font-weight: 600; color: #fff; margin-bottom: 6px; line-height: 1.4; }
+  .q-sub { font-size: clamp(12px, 1.8vw, 14px); color: rgba(255,255,255,0.45); margin-bottom: 16px; line-height: 1.6; }
+
+  .opt {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 14px 16px; border: 0.5px solid rgba(255,255,255,0.1);
+    border-radius: 12px; margin-bottom: 10px; cursor: pointer;
+    transition: all 0.15s; font-size: clamp(13px, 1.8vw, 15px); color: rgba(255,255,255,0.75);
+    user-select: none;
+  }
+  .opt:hover { background: rgba(127,119,221,0.12); border-color: rgba(127,119,221,0.35); color: #fff; }
+  .opt.selected { background: rgba(127,119,221,0.2); border-color: rgba(127,119,221,0.6); color: #fff; }
+  .opt input { display: none; }
+  .opt-dot {
+    width: 18px; height: 18px; min-width: 18px; border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.25); margin-top: 1px;
+    display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+  }
+  .opt.selected .opt-dot { background: #7F77DD; border-color: #7F77DD; }
+  .opt-dot-inner { width: 7px; height: 7px; border-radius: 50%; background: #fff; display: none; }
+  .opt.selected .opt-dot-inner { display: block; }
+  .opt-check {
+    width: 18px; height: 18px; min-width: 18px; border-radius: 4px;
+    border: 1.5px solid rgba(255,255,255,0.25); margin-top: 1px;
+    display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+    font-size: 11px; color: transparent;
+  }
+  .opt.selected .opt-check { background: #7F77DD; border-color: #7F77DD; color: #fff; }
+
+  textarea, input[type="text"] {
+    width: 100%; background: rgba(255,255,255,0.05);
+    border: 0.5px solid rgba(255,255,255,0.15); border-radius: 10px;
+    color: #fff; font-size: clamp(14px, 2vw, 16px); padding: 14px 16px;
+    font-family: inherit; resize: vertical; outline: none;
+    transition: border-color 0.2s;
+    line-height: 1.6;
+  }
+  textarea:focus, input[type="text"]:focus { border-color: rgba(127,119,221,0.5); }
+  textarea::placeholder, input[type="text"]::placeholder { color: rgba(255,255,255,0.25); }
+
+  .submit-btn {
+    width: 100%; padding: 18px; margin-top: 2rem;
+    background: #7F77DD; color: #fff; border: none;
+    border-radius: 14px; font-size: clamp(15px, 2vw, 17px); font-weight: 600;
+    cursor: pointer; font-family: inherit; letter-spacing: -0.2px;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .submit-btn:hover { background: #534AB7; }
+  .submit-btn:active { transform: scale(0.99); }
+
+  .success {
+    text-align: center; padding: 3rem 2rem;
+    background: rgba(255,255,255,0.04);
+    border: 0.5px solid rgba(93,202,165,0.4);
+    border-radius: 20px; display: none;
+  }
+  .success-icon { font-size: 64px; display: block; margin-bottom: 1rem; }
+  .success h2 { font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 0.75rem; }
+  .success p { font-size: 15px; color: rgba(255,255,255,0.55); line-height: 1.7; }
+
+  .responses-panel {
+    margin-top: 2.5rem;
+    background: rgba(255,255,255,0.03);
+    border: 0.5px solid rgba(255,255,255,0.08);
+    border-radius: 16px; padding: 1.5rem; display: none;
+  }
+  .responses-panel h3 { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.5); margin-bottom: 1rem; letter-spacing: 0.05em; }
+  .resp-entry {
+    padding: 1rem 0; border-bottom: 0.5px solid rgba(255,255,255,0.07);
+  }
+  .resp-entry:last-child { border-bottom: none; }
+  .resp-name { font-size: 13px; font-weight: 600; color: #c5c0f5; margin-bottom: 6px; }
+  .resp-answers { font-size: 12px; color: rgba(255,255,255,0.45); line-height: 1.8; }
+
+  .error-msg { font-size: 12px; color: #F09595; margin-top: 6px; display: none; }
+  .required { color: #D85A30; margin-left: 3px; }
+</style>
+</head>
+<body>
+<div class="stars"></div>
+<div class="wrap">
+
+  <div class="hero">
+    <span class="hero-icon"></span>
+    <h1>Decompression Somewhere — are you in?</h1>
+    <p>Elsewhere ended. Your body is back in the real world. Your soul… not so much. Let's fix that. We are thinking to organize few days in nature to relax and enjoy some family time together to reset. Fill this out and we can figure out how to make the magic last a little longer. 🫶</p>
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+  <div class="q-card" style="background: rgba(255,255,255,0.03); border-color: rgba(93,202,165,0.2);">
+    <div class="q-label" style="color: #ffffff; font-size: 14px;">Leave your name so we know who's who 💚</div>
+    <div class="q-sub" style="color: rgba(132, 47, 121, 0.5); margin-bottom: 10px;"></div>
+    <input type="text" id="q-name" placeholder="Your name and/or playa name…" />
+  </div>
+
+  <div id="form-body">
+    <div class="q-card" data-q="1">
+      <div class="q-num">01 / 09</div>
+      <div class="q-label">⚡ Are you staying for Strike?<span class="required">*</span></div>
+      <div class="q-sub">The festival doesn't end until it ends, right?</div>
+      <div class="opt" data-name="q1" data-val="no_strike"><span class="opt-dot"><span class="opt-dot-inner"></span></span>No, leaving Sunday 👋</div>
+      <div class="opt" data-name="q1" data-val="yes_strike"><span class="opt-dot"><span class="opt-dot-inner"></span></span>Yes, babe it's not over until it's over 🔥</div>
+      <div class="error-msg" id="err-q1">Let us know about Strike!</div>
+    </div>
+
+    <div class="q-card" data-q="2">
+      <div class="q-num">02 / 09</div>
+      <div class="q-label">🎪 First things first — are you actually down?<span class="required">*</span></div>
+      <div class="q-sub">No pressure. (Okay, a little pressure. We miss you already.)</div>
+      <div class="opt" data-name="q2" data-val="yes_all_in"><span class="opt-dot"><span class="opt-dot-inner"></span></span>YES — take my body and my soul, I'm all in 🙌</div>
+      <div class="opt" data-name="q2" data-val="maybe"><span class="opt-dot"><span class="opt-dot-inner"></span></span>Maybe… depends on location / budget / moon phase 🌙</div>
+      <div class="opt" data-name="q2" data-val="no"><span class="opt-dot"><span class="opt-dot-inner"></span></span>No — my desk is calling 😭</div>
+      <div class="error-msg" id="err-q2">Please pick one so we know where you stand!</div>
+    </div>
+
+    <div class="q-card" data-q="3">
+      <div class="q-num">03 / 09</div>
+      <div class="q-label">⏰ So what date would you like to start decomp?</div>
+      <div class="q-sub">We need to know if we are alligned for when to start the decomp.</div>
+      <input type="text" id="q3-strike" placeholder="e.g. Until Tuesday, 3 more days, until it's over..." />
+    </div>
+
+    <div class="q-card" data-q="4">
+      <div class="q-num">04 / 09</div>
+      <div class="q-label">📅 How many days can you stretch it?<span class="required">*</span></div>
+      <div class="q-sub">More days = more healing. Science said so.</div>
+      <div class="opt" data-name="q4" data-val="1-2"><span class="opt-dot"><span class="opt-dot-inner"></span></span>1–2 days — just dipping the toes</div>
+      <div class="opt" data-name="q4" data-val="3-4"><span class="opt-dot"><span class="opt-dot-inner"></span></span>3–4 days — the sweet spot ✨</div>
+      <div class="opt" data-name="q4" data-val="forever"><span class="opt-dot"><span class="opt-dot-inner"></span></span>I have no job, no responsibilities — take me forever 🔥</div>
+      <div class="error-msg" id="err-q4">Tell us how long we can keep you!</div>
+    </div>
+
+    <div class="q-card" data-q="5">
+      <div class="q-num">05 / 09</div>
+      <div class="q-label">💸 Let's talk money. What's the situation?<span class="required">*</span></div>
+      <div class="q-sub">No judgment whatsoever. We plan around this.</div>
+      <div class="opt" data-name="q5" data-val="flush"><span class="opt-dot"><span class="opt-dot-inner"></span></span>I'm good — I can contribute to shared costs for renting a beautiful spot 🤑</div>
+      <div class="opt" data-name="q5" data-val="broke"><span class="opt-dot"><span class="opt-dot-inner"></span></span>Festival fully broke me 😅 free camping is the only option</div>
+      <div class="error-msg" id="err-q5">We need to know for planning purposes, promise!</div>
+    </div>
+
+    <div class="q-card" data-q="6">
+      <div class="q-num">06 / 09</div>
+      <div class="q-label">🚐 Transport & shelter — what do you bring?</div>
+      <div class="q-sub">Tick everything that applies. Bonus points for vans.</div>
+      <div class="opt checkbox" data-name="q6" data-val="van"><span class="opt-check">✓</span>I have a van / campervan 👑 (you absolute legend)</div>
+      <div class="opt checkbox" data-name="q6" data-val="car"><span class="opt-check">✓</span>I have a car — can give rides or carry stuff</div>
+      <div class="opt checkbox" data-name="q6" data-val="tent"><span class="opt-check">✓</span>I have a tent + sleeping gear, fully self-sufficient ⛺</div>
+      <div class="opt checkbox" data-name="q6" data-val="need_ride"><span class="opt-check">✓</span>I need a ride to get there 🙏</div>
+      <div class="opt checkbox" data-name="q6" data-val="need_gear"><span class="opt-check">✓</span>I need to borrow / share sleeping gear</div>
+    </div>
+
+    <div class="q-card" data-q="7">
+      <div class="q-num">07 / 09</div>
+      <div class="q-label">✈️ After the decompression — how are you getting home?<span class="required">*</span></div>
+      <div class="q-sub">Do you need a ride to the airport or are you a free-range human?</div>
+      <div class="opt" data-name="q7" data-val="need_airport"><span class="opt-dot"><span class="opt-dot-inner"></span></span>I need a lift to the airport — please don't leave me 🛫</div>
+      <div class="opt" data-name="q7" data-val="need_station"><span class="opt-dot"><span class="opt-dot-inner"></span></span>I need a drop-off at the train / bus station 🚉</div>
+      <div class="opt" data-name="q7" data-val="independent"><span class="opt-dot"><span class="opt-dot-inner"></span></span>I'm independent — I'll sort my own exit 🦅</div>
+      <div class="opt" data-name="q7" data-val="can_give_lift"><span class="opt-dot"><span class="opt-dot-inner"></span></span>I can give people lifts on my way out 🚗💨</div>
+      <div class="error-msg" id="err-q7">Let us know so we can coordinate!</div>
+    </div>
+
+    <div class="q-card" data-q="8">
+      <div class="q-num">08 / 09</div>
+      <div class="q-label">🌍 If you need a ride let us know where and when</div>
+      <div class="q-sub">If you are not sure yet, let us know as well.</div>
+      <input type="text" id="q8" placeholder="e.g. Barcelona airport / just leave me in the desert.." />
+    </div>
+
+    <div class="q-card" data-q="9">
+      <div class="q-num">09 / 09</div>
+      <div class="q-label">💡 Ideas, requests, things you want to contribute?</div>
+      <div class="q-sub">Do you have a villa with a swimming pool in Costa Brava? or do you know a good camping spot? Any help is appreciated!</div>
+      <textarea id="q9" rows="4" placeholder="Drop your wildest and most realistic ideas here… we're listening 🎤"></textarea>
+    </div>
+
+    <button class="submit-btn" onclick="submitForm()">✨Send it — I'm manifesting the decompression✨</button>
+  </div>
+
+  <div class="success" id="success-screen">
+    <span class="success-icon">🎉</span>
+    <h2>Thank you Wonderling!</h2>
+    <p>Your response has been saved. The decompression is being summoned. We'll be in touch soon.</p>
+  </div>
+
+  <div class="responses-panel" id="responses-panel">
+    <h3>RESPONSES SO FAR</h3>
+    <div id="responses-list"></div>
+  </div>
+
+</div>
+
+<script>
+  const radioGroups = {};
+  const checkboxGroups = {};
+  
+  function initOpts() {
+    document.querySelectorAll('.opt').forEach(opt => {
+      const name = opt.dataset.name;
+      const val = opt.dataset.val;
+      const isCheck = opt.classList.contains('checkbox');
+  
+      if (isCheck) {
+        if (!checkboxGroups[name]) checkboxGroups[name] = [];
+        opt.addEventListener('click', () => {
+          opt.classList.toggle('selected');
+          if (opt.classList.contains('selected')) {
+            if (!checkboxGroups[name].includes(val)) checkboxGroups[name].push(val);
+          } else {
+            checkboxGroups[name] = checkboxGroups[name].filter(v => v !== val);
+          }
+          updateProgress();
+        });
+      } else {
+        opt.addEventListener('click', () => {
+          document.querySelectorAll(`.opt[data-name="${name}"]`).forEach(o => o.classList.remove('selected'));
+          opt.classList.add('selected');
+          radioGroups[name] = val;
+          hideError(name);
+          if (name === 'q2') handleQ2Change();
+          updateProgress();
+        });
+      }
+    });
+  
+    // Add listeners to text inputs and textarea
+    document.querySelectorAll('input[type="text"], textarea').forEach(input => {
+      input.addEventListener('input', updateProgress);
+    });
+  }
+  
+  function hideError(name) {
+    const el = document.getElementById('err-' + name);
+    if (el) el.style.display = 'none';
+  }
+  
+  function showError(name) {
+    const el = document.getElementById('err-' + name);
+    if (el) el.style.display = 'block';
+  }
+  function updateProgress() {
+  const required = radioGroups.q2 === 'no' ? ['q1','q2'] : ['q1','q2','q4','q5','q7'];
+  const filled = required.filter(k => radioGroups[k]).length;
+  document.getElementById('progress').style.width = Math.round((filled / required.length) * 100) + '%';
+}
+
+function submitForm() {
+  const required = radioGroups.q2 === 'no' ? ['q1','q2'] : ['q1','q2','q4','q5','q7'];
+  let valid = true;
+  required.forEach(k => {
+    if (!radioGroups[k]) { showError(k); valid = false; }
+  });
+  if (!valid) {
+    document.querySelector('.q-card[data-q="1"]').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  const name = document.getElementById('q-name').value.trim() || 'Anonymous festival soul';
+  const strikeLength = document.getElementById('q3-strike').value.trim() || '—';
+  
+  const labelMap = {
+    q1: { no_strike: 'Leaving Sunday 👋', yes_strike: 'Staying for Strike 🔥' },
+    q2: { yes_all_in: 'All in 🙌', maybe: 'Maybe 🌙', no: 'Can\'t make it 😭' },
+    q4: { '1-2': '1–2 days', '3-4': '3–4 days ✨', forever: 'Forever 🔥' },
+    q5: { flush: 'Can contribute 🤑', broke: 'Free camping only 😅' },
+    q7: { need_airport: 'Needs airport lift 🛫', need_station: 'Needs station drop 🚉', independent: 'Independent 🦅', can_give_lift: 'Can give lifts 🚗' }
+  };
+
+  const entry = {
+    name,
+    strike: labelMap.q1[radioGroups.q1],
+    strikeLength,
+    going: labelMap.q2[radioGroups.q2],
+    days: radioGroups.q2 === 'no' ? '—' : (labelMap.q4[radioGroups.q4] || '—'),
+    money: radioGroups.q2 === 'no' ? '—' : (labelMap.q5[radioGroups.q5] || '—'),
+    shelter: radioGroups.q2 === 'no' ? '—' : (checkboxGroups['q6'] && checkboxGroups['q6'].length ? checkboxGroups['q6'].join(', ') : '—'),
+    departure: radioGroups.q2 === 'no' ? '—' : (labelMap.q7[radioGroups.q7] || '—'),
+    from: radioGroups.q2 === 'no' ? '—' : (document.getElementById('q8').value.trim() || '—'),
+    ideas: radioGroups.q2 === 'no' ? '—' : (document.getElementById('q9').value.trim() || '—')
+  };
+
+  sendToGoogleSheets(entry);
+
+  const stored = JSON.parse(localStorage.getItem('decomp_responses') || '[]');
+  stored.push(entry);
+  localStorage.setItem('decomp_responses', JSON.stringify(stored));
+
+  document.getElementById('form-body').style.display = 'none';
+  document.getElementById('success-screen').style.display = 'block';
+  //renderResponses(stored);
+  document.getElementById('progress').style.width = '100%';
+}
+
+function handleQ2Change() {
+  const isNo = radioGroups.q2 === 'no';
+  const hiddenQuestions = document.querySelectorAll('.q-card[data-q="3"], .q-card[data-q="4"], .q-card[data-q="5"], .q-card[data-q="6"], .q-card[data-q="7"], .q-card[data-q="8"], .q-card[data-q="9"]');
+  const submitBtn = document.querySelector('.submit-btn');
+  
+  if (isNo) {
+    hiddenQuestions.forEach(q => q.style.display = 'none');
+    submitBtn.textContent = '😭 We will miss you! — Send my response';
+  } else {
+    hiddenQuestions.forEach(q => q.style.display = 'block');
+    submitBtn.textContent = '✨Send it — I\'m manifesting the decompression✨';
+  }
+}
+  
+  function sendToGoogleSheets(entry) {
+    const appsScriptURL = 'https://script.google.com/macros/s/AKfycbxI2zlGv3Txlz5X2fE-rIvvJo9-2gTfpL4qjCq_b5zzrVzXy2PHw9afPnKtGKl7rbBu3Q/exec';
+    const payload = {
+      name: entry.name,
+      strike: entry.strike,
+      strikeLength: entry.strikeLength,
+      going: entry.going,
+      days: entry.days,
+      money: entry.money,
+      shelter: entry.shelter,
+      departure: entry.departure,
+      from: entry.from,
+      ideas: entry.ideas
+    };
+  
+    fetch(appsScriptURL, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: JSON.stringify(payload)
+    })
+    .catch(e => console.log('Response saved to sheet'));
+  }
+  
+  function renderResponses(list) {
+    const panel = document.getElementById('responses-panel');
+    const container = document.getElementById('responses-list');
+    if (!list.length) return;
+    panel.style.display = 'block';
+    container.innerHTML = list.map(e => `
+      <div class="resp-entry">
+        <div class="resp-name">${e.name}</div>
+        <div class="resp-answers">
+          Strike: ${e.strike} &nbsp;·&nbsp; ${e.strikeLength !== '—' ? `For ${e.strikeLength}` : ''}<br>
+          Going: ${e.going} &nbsp;·&nbsp; Days: ${e.days}<br>
+          Money: ${e.money} &nbsp;·&nbsp; Shelter: ${e.shelter}<br>
+          Departure: ${e.departure} &nbsp;·&nbsp; From: ${e.from}${e.ideas !== '—' ? `<br>Ideas: ${e.ideas}` : ''}
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  /*
+  function submitAnother() {
+    document.getElementById('form-body').style.display = 'block';
+    document.getElementById('success-screen').style.display = 'none';
+    document.querySelectorAll('.opt.selected').forEach(o => o.classList.remove('selected'));
+    Object.keys(radioGroups).forEach(k => delete radioGroups[k]);
+    Object.keys(checkboxGroups).forEach(k => checkboxGroups[k] = []);
+    document.getElementById('q-name').value = '';
+    document.getElementById('q2-strike').value = '';
+    document.getElementById('q8').value = '';
+    document.getElementById('q9').value = '';
+    document.getElementById('progress').style.width = '0%';
+    updateProgress();
+  }
+  */
+
+  initOpts();
+  //const existing = JSON.parse(localStorage.getItem('decomp_responses') || '[]');
+  //if (existing.length) renderResponses(existing);
+  </script>
+  </body>
+</html>
